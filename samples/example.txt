@@ -1,0 +1,6 @@
+DocuMind AI demonstration record
+Name: Syed Aali
+Email: aali@example.com
+Phone: +92 333 1234567
+Date: 2026-11-11
+This file contains fake example data only.

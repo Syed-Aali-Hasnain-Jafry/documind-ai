@@ -1,0 +1,19 @@
+
+INVOICE
+
+Company: TechNova Solutions
+Invoice Number: INV-2026-1045
+
+Customer: Ali Enterprises
+Email: accounts@alienterprises.com
+Phone: +92 300 1234567
+
+Invoice Date: 2026-11-11
+Due Date: 2026-11-25
+
+Description: AI Software Development
+Quantity: 2
+Unit Price: PKR 25000
+
+Total Amount: PKR 50000
+Payment Status: Unpaid
