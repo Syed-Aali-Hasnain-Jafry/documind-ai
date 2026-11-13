@@ -59,3 +59,45 @@ def test_rejects_pdf_with_no_extractable_text():
     response = client.post("/extract", files={"file": ("blank.pdf", buffer.getvalue(), "application/pdf")})
     assert response.status_code == 422
     assert "OCR" in response.json()["detail"]
+
+
+
+def test_ai_invoice_endpoint(monkeypatch):
+    from app.ai_extractor import InvoiceData
+
+    # Fake Gemini response
+    def fake_ai_extraction(text):
+        return InvoiceData(
+            invoice_number="INV-2026-1045",
+            company="TechNova Solutions",
+            total_amount=50000.0,
+            currency="PKR",
+        )
+
+    # Replace the real AI function with our fake one
+    monkeypatch.setattr(
+        "app.main.extract_invoice_with_ai",
+        fake_ai_extraction
+    )
+
+    # Upload a fake invoice
+    response = client.post(
+        "/extract/ai",
+        files={
+            "file": (
+                "invoice.txt",
+                b"Invoice Number: INV-2026-1045",
+                "text/plain"
+            )
+        }
+    )
+
+    # Check the result
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["invoice_number"] == "INV-2026-1045"
+    assert data["company"] == "TechNova Solutions"
+    assert data["total_amount"] == 50000.0
+    assert data["currency"] == "PKR"

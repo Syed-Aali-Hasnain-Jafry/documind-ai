@@ -1,4 +1,10 @@
 """DocuMind AI public HTTP API."""
+
+from fastapi.concurrency import run_in_threadpool
+from google.genai.errors import APIError
+
+from app.ai_extractor import InvoiceData, extract_invoice_with_ai
+
 from pathlib import Path
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
@@ -56,3 +62,27 @@ async def extract(file: UploadFile = File(...)) -> DocumentResult:
         text=text,
         fields=extract_fields(text),
     )
+
+
+@app.post("/extract/ai", response_model=InvoiceData)
+async def extract_with_ai(file: UploadFile = File(...)):
+    """Extract invoice information using Gemini AI."""
+
+    # Step 1: Use our existing document reader
+    document = await extract(file)
+
+    # Step 2: Send the document text to Gemini
+    try:
+        result = await run_in_threadpool(
+            extract_invoice_with_ai,
+            document.text
+        )
+
+    except APIError:
+        raise HTTPException(
+            status_code=503,
+            detail="AI service is temporarily unavailable"
+        )
+
+    # Step 3: Return the AI result
+    return result
